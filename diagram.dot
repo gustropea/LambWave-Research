@@ -1,0 +1,83 @@
+digraph G {
+	fontname="Helvetica,Arial,sans-serif"
+	node [fontname="Helvetica,Arial,sans-serif"]
+	edge [fontname="Helvetica,Arial,sans-serif"]
+	subgraph cluster_0 {
+		style=filled;
+		color=lightgrey;
+		node [style=filled,color=white];
+		a0[label="Start",shape=Mdiamond];
+		a1[label=<clawpack5_step2 <BR /><FONT POINT-SIZE="10">(call)</FONT>>]
+		a2[label="Update q"];
+		a3[label="End",shape=Msquare];
+		a0 -> a1 -> a2 -> a3;
+		label =< <B>clawpack5_step2_wrap</B> <BR /><FONT POINT-SIZE="10"> <B>Inputs:</B>maxm, meqn, maux, mbc, <BR /> method, mthlim, mcapa, mwaves, <BR /> mx, my, qold, aux, <BR /> dx, dy, dt, cfl, work, mwork, <BR /> xlower,ylower,level, <BR /> t,fp,fm, gp, gm, rpn2, <BR /> rpt2,flux2,block_corner_count,<BR />ierror</FONT>>;
+	}
+
+	subgraph cluster_1 {
+		node [style=filled];
+		b0[label="Start",shape=Mdiamond];
+		b1[label=<clawpack5_step2 <BR /> (call) <BR /><FONT POINT-SIZE="10"> <B>Inputs:</B> mx, my, mbc,<BR /> meqn, qold,<BR />sweep_dir, block_corner_count</FONT>>];
+		b2[label="X Sweeps"];
+		b3[label=<clawpack5_flux2 <BR /><FONT POINT-SIZE="10">(call)</FONT>>]
+                b4[label="Update Fluxes"];
+		b5[label="Y Sweeps"];
+		b6[label=<clawpack5_flux2 <BR /><FONT POINT-SIZE="10">(call)</FONT>>]
+		b7[label="Update Fluxes"];
+		b8[label="End",shape=Msquare];
+		b0 -> b1 -> b2 -> b3 -> b4 -> b5 -> b6 -> b7 -> b8; 
+		label = "process #2";
+		color=blue
+		label =< <B>clawpack5_step2</B> <BR /><FONT POINT-SIZE="10"> <B>Inputs:</B> maxm, meqn, maux, mbc,<BR /> mx, my, qold, aux, dx, dy, dt,<BR /> cflgrid, fm, fp, gm, gp,<BR />rpn2, rpt2, block_corner_count</FONT>>;
+	}
+
+
+        subgraph cluster_2 {
+                node [style=filled]
+		c0[label="Start",shape=Mdiamond];
+		c1[label=<rpn2 <BR /><FONT POINT-SIZE="10">(call)</FONT>>]		
+		c2[label="modify fluxes for second order correction terms"]
+		c3[label="modify fluxes for transverse propagation"];
+		c4[label=<rpt2 <BR /><FONT POINT-SIZE="10">(call)</FONT>>]
+		c5[label="End",shape=Msquare];
+                c0 -> c1 -> c2 -> c3 -> c4 -> c5;
+                color=blue
+                label =< <B>clawpack5_flux2</B> <BR /><FONT POINT-SIZE="10"> <B>Inputs:</B> ixy,maxM, meqn, maux, mbc, mx, <BR /> q1d, dtdx1d, aux1, aux2, aux3, faddm, <BR />faddp, gaddm, gaddp, cfl1d, wave, <BR />s,amdq, apdq, cqxx,<BR />bmasdq, bpasdq, rpn2, rpt2</FONT>>;
+        }
+
+
+        subgraph cluster_3 {
+                node [style=filled];
+		d0[label="Start",shape=Mdiamond];
+		d1[label="Compute flux difference"];
+                d2[label="End",shape=Msquare];
+		d0 -> d1 -> d2;
+		color=red
+                label =< <B>rpn2</B> <BR /><FONT POINT-SIZE="10"> <B>Inputs: ixy, maxm, meqn, mwaves,<BR />maux, mbc, mx, ql, qr, <BR />auxl, auxr, wave, s, amdq, apdq</B></FONT>>;
+        }
+
+
+        subgraph cluster_4 {
+                node [style=filled];
+		e0[label="Start",shape=Mdiamond];
+		e1[label="Compute flux difference"]
+                e2[label="End",shape=Msquare];
+		e0 -> e1 -> e2;
+		color=red;
+                label =< <B>rpt2</B> <BR /><FONT POINT-SIZE="10"> <B>Inputs:</B>ixy ,imp, maxm, meqn, mwaves,<BR />maux, mbc, mx, ql, qr,<BR />aux1, aux2, aux3, asdq, bmasdq, bpasdq</FONT>>;
+        }
+
+
+
+	start -> a0;
+	a1 -> b0;
+	a3 -> end;
+	b3 -> c0;
+	b6 -> c0;
+	c1 -> d0;
+	c4 -> e0;
+	start [shape=Mdiamond];
+	end [shape=Msquare];
+	labelloc="t";
+	label=<<FONT POINT-SIZE="48"><B>CLAWPACK 5 - Solvers</B></FONT><BR /> <FONT POINT-SIZE="36"><B>Execution Diagram</B></FONT>>
+}
