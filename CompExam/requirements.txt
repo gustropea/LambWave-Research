@@ -1,0 +1,7 @@
+numpy
+matplotlib
+ecmwflibs
+eccodes
+pygrib
+cfgrib
+xarray[complete]
